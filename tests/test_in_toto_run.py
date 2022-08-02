@@ -44,29 +44,29 @@ class TestInTotoRunTool(CliTestCase, TmpDirMixin, GPGKeysMixin, GenKeysMixin):
   cli_main_func = staticmethod(in_toto_run_main)
 
   @classmethod
-  def setUpClass(self):
+  def setUpClass(cls):
     """Create and change into temporary directory,
     generate key pair, dummy artifact and base arguments. """
-    self.set_up_test_dir()
-    self.set_up_gpg_keys()
-    self.set_up_keys()
+    cls.set_up_test_dir()
+    cls.set_up_gpg_keys()
+    cls.set_up_keys()
 
-    self.test_step = "test_step"
-    self.test_link_rsa = FILENAME_FORMAT.format(
-        step_name=self.test_step, keyid=self.rsa_key_id)
-    self.test_link_ed25519 = FILENAME_FORMAT.format(
-        step_name=self.test_step, keyid=self.ed25519_key_id)
-    self.test_link_rsa_enc = FILENAME_FORMAT.format(
-        step_name=self.test_step, keyid=self.rsa_key_enc_id)
-    self.test_link_ed25519_enc = FILENAME_FORMAT.format(
-        step_name=self.test_step, keyid=self.ed25519_key_enc_id)
+    cls.test_step = "test_step"
+    cls.test_link_rsa = FILENAME_FORMAT.format(
+        step_name=cls.test_step, keyid=cls.rsa_key_id)
+    cls.test_link_ed25519 = FILENAME_FORMAT.format(
+        step_name=cls.test_step, keyid=cls.ed25519_key_id)
+    cls.test_link_rsa_enc = FILENAME_FORMAT.format(
+        step_name=cls.test_step, keyid=cls.rsa_key_enc_id)
+    cls.test_link_ed25519_enc = FILENAME_FORMAT.format(
+        step_name=cls.test_step, keyid=cls.ed25519_key_enc_id)
 
-    self.test_artifact = "test_artifact"
-    Path(self.test_artifact).touch()
+    cls.test_artifact = "test_artifact"
+    Path(cls.test_artifact).touch()
 
   @classmethod
-  def tearDownClass(self):
-    self.tear_down_test_dir()
+  def tearDownClass(cls):
+    cls.tear_down_test_dir()
 
   def tearDown(self):
     for link in glob.glob("*.link"):
@@ -156,6 +156,8 @@ class TestInTotoRunTool(CliTestCase, TmpDirMixin, GPGKeysMixin, GenKeysMixin):
   def test_main_with_encrypted_keys(self):
     """Test CLI command with encrypted ed25519 key. """
 
+    cmd = ["--", "python", "--version"]
+
     for key_type, key_path, link_path in [
         ("rsa", self.rsa_key_enc_path, self.test_link_rsa_enc),
         ("ed25519", self.ed25519_key_enc_path, self.test_link_ed25519_enc)]:
@@ -166,8 +168,6 @@ class TestInTotoRunTool(CliTestCase, TmpDirMixin, GPGKeysMixin, GenKeysMixin):
           "-n", self.test_step,
           "--key", key_path,
           "--key-type", key_type]
-      cmd = ["--", "python", "--version"]
-
       # Make sure the link file to be generated doesn't already exist
       self.assertFalse(os.path.exists(link_path))
 

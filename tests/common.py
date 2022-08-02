@@ -45,10 +45,13 @@ def run_with_portable_scripts(decorated):
 
   print("patching...")
   scripts_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "scripts")
-  print("scripts are located in {}".format(scripts_path))
-  @patch.dict(os.environ, {"PATH": "{};{}".format(scripts_path, os.environ['PATH'])})
+  print(f"scripts are located in {scripts_path}")
+
+
+  @patch.dict(os.environ, {"PATH": f"{scripts_path};{os.environ['PATH']}"})
   class Patched(decorated):
     pass
+
 
   return Patched
 
@@ -139,9 +142,9 @@ class CliTestCase(unittest.TestCase):
     self.assert_cli_sys_exit.
     """
     if not callable(self.cli_main_func):
-      raise Exception("Subclasses of `CliTestCase` need to assign the main"
-          " function of the cli tool to test using `staticmethod()`: {}"
-          .format(self.__class__.__name__))
+      raise Exception(
+          f"Subclasses of `CliTestCase` need to assign the main function of the cli tool to test using `staticmethod()`: {self.__class__.__name__}"
+      )
 
     file_path = inspect.getmodule(self.cli_main_func).__file__
     self.file_name = os.path.basename(file_path)

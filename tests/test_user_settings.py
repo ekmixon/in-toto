@@ -26,18 +26,18 @@ import in_toto.user_settings
 
 class TestUserSettings(unittest.TestCase):
   @classmethod
-  def setUpClass(self):
-    self.working_dir = os.getcwd()
+  def setUpClass(cls):
+    cls.working_dir = os.getcwd()
 
     # Backup settings to restore them in `tearDownClass`
-    self.settings_backup = {}
-    for key in dir(in_toto.settings):
-      self.settings_backup[key] = getattr(in_toto.settings, key)
-
+    cls.settings_backup = {
+        key: getattr(in_toto.settings, key)
+        for key in dir(in_toto.settings)
+    }
     # We use `rc_test` as test dir because it has an `.in_totorc`, which
     # is loaded (from CWD) in `user_settings.set_settings` related tests
-    self.test_dir = os.path.join(os.path.dirname(__file__), "rc_test")
-    os.chdir(self.test_dir)
+    cls.test_dir = os.path.join(os.path.dirname(__file__), "rc_test")
+    os.chdir(cls.test_dir)
 
     os.environ["IN_TOTO_ARTIFACT_EXCLUDE_PATTERNS"] = "e:n:v"
     os.environ["IN_TOTO_ARTIFACT_BASE_PATH"] = "e/n/v"
@@ -47,12 +47,12 @@ class TestUserSettings(unittest.TestCase):
 
 
   @classmethod
-  def tearDownClass(self):
-    os.chdir(self.working_dir)
+  def tearDownClass(cls):
+    os.chdir(cls.working_dir)
 
     # Other unittests might depend on defaults:
     # Restore monkey patched settings ...
-    for key, val in self.settings_backup.items():
+    for key, val in cls.settings_backup.items():
       setattr(in_toto.settings, key, val)
 
     # ... and delete test environment variables

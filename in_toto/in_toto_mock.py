@@ -87,8 +87,8 @@ Generate unsigned link metadata 'foo.link' for the activity of creating file
       "command to be executed. It is separated from named and optional"
       " arguments by a double dash '--'."))
 
-  parser.add_argument('--version', action='version',
-                      version='{} {}'.format(parser.prog, __version__))
+  parser.add_argument(
+      '--version', action='version', version=f'{parser.prog} {__version__}')
 
   title_case_action_groups(parser)
   sort_action_groups(parser)

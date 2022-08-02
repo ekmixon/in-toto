@@ -70,8 +70,7 @@ class TestMetablockValidator(unittest.TestCase):
       metablock._validate_signatures()
 
     # Fail with invalid signature
-    metablock.signatures = []
-    metablock.signatures.append("not-a-signature")
+    metablock.signatures = ["not-a-signature"]
     with self.assertRaises(FormatError):
       metablock._validate_signatures()
 

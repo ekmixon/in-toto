@@ -135,15 +135,13 @@ class Layout(Signable):
       The created Layout object.
 
     """
-    steps = []
+    steps = [Step.read(step_data) for step_data in data.get("steps")]
 
-    for step_data in data.get("steps"):
-      steps.append(Step.read(step_data))
     data["steps"] = steps
 
-    inspections = []
-    for inspect_data in data.get("inspect"):
-      inspections.append(Inspection.read(inspect_data))
+    inspections = [
+        Inspection.read(inspect_data) for inspect_data in data.get("inspect")
+    ]
     data["inspect"] = inspections
 
     return Layout(**data)
@@ -167,8 +165,8 @@ class Layout(Signable):
     securesystemslib.schema.Integer().check_match(months)
     securesystemslib.schema.Integer().check_match(years)
 
-    self.expires = (datetime.today() + relativedelta(
-        days=days, months=months, years=years)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    self.expires = ((datetime.now() + relativedelta(
+        days=days, months=months, years=years))).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
   def get_step_name_list(self):
@@ -178,11 +176,7 @@ class Layout(Signable):
       A list of step names.
 
     """
-    step_names = []
-    for step in self.steps:
-      step_names.append(step.name)
-
-    return step_names
+    return [step.name for step in self.steps]
 
 
   def get_step_by_name(self, step_name):
@@ -235,11 +229,7 @@ class Layout(Signable):
       A list of inspection names.
 
     """
-    inspection_names = []
-    for inspection in self.inspect:
-      inspection_names.append(inspection.name)
-
-    return inspection_names
+    return [inspection.name for inspection in self.inspect]
 
 
   def get_inspection_by_name(self, inspection_name):
@@ -437,15 +427,14 @@ class Layout(Signable):
           self.expires)
     except Exception as e:
       raise securesystemslib.exceptions.FormatError(
-          "Malformed date string in layout. Exception: {}".format(e))
+          f"Malformed date string in layout. Exception: {e}")
 
 
   def _validate_readme(self):
     """Private method to check that the readme field is a string."""
     if not isinstance(self.readme, str):
       raise securesystemslib.exceptions.FormatError(
-          "Invalid readme '{}', value must be a string."
-          .format(self.readme))
+          f"Invalid readme '{self.readme}', value must be a string.")
 
 
   def _validate_keys(self):
@@ -470,8 +459,8 @@ class Layout(Signable):
 
       if step.name in names_seen:
         raise securesystemslib.exceptions.FormatError(
-            "There is already a step with name '{}'. Step names must be"
-            " unique within a layout.".format(step.name))
+            f"There is already a step with name '{step.name}'. Step names must be unique within a layout."
+        )
       names_seen.add(step.name)
 
     if not isinstance(self.inspect, list):
@@ -487,8 +476,8 @@ class Layout(Signable):
 
       if inspection.name in names_seen:
         raise securesystemslib.exceptions.FormatError(
-            "There is already an inspection with name '{}'. Inspection names"
-            " must be unique within a layout.".format(inspection.name))
+            f"There is already an inspection with name '{inspection.name}'. Inspection names must be unique within a layout."
+        )
       names_seen.add(inspection.name)
 
 
@@ -662,8 +651,7 @@ class Step(SupplyChainItem):
     """Private method to check that the threshold field is set to an int."""
     if not isinstance(self.threshold, int):
       raise securesystemslib.exceptions.FormatError(
-          "Invalid threshold '{}', value must be an int."
-          .format(self.threshold))
+          f"Invalid threshold '{self.threshold}', value must be an int.")
 
 
   def _validate_pubkeys(self):

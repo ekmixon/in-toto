@@ -70,7 +70,7 @@ def _hash_artifact(filepath, hash_algorithms=None,
   for algorithm in hash_algorithms:
     digest_object = securesystemslib.hash.digest_filename(filepath, algorithm,
         normalize_line_endings=normalize_line_endings)
-    hash_dict.update({algorithm: digest_object.hexdigest()})
+    hash_dict[algorithm] = digest_object.hexdigest()
 
   securesystemslib.formats.HASHDICT_SCHEMA.check_match(hash_dict)
 
@@ -105,9 +105,9 @@ def _apply_left_strip(artifact_filepath, artifacts_dict, lstrip_paths=None):
         break
 
     if artifact_filepath in artifacts_dict:
-      raise in_toto.exceptions.PrefixError("Prefix selection has "
-          "resulted in non unique dictionary key '{}'"
-          .format(artifact_filepath))
+      raise in_toto.exceptions.PrefixError(
+          f"Prefix selection has resulted in non unique dictionary key '{artifact_filepath}'"
+      )
 
   return artifact_filepath
 
@@ -215,14 +215,10 @@ def record_artifacts_as_dict(artifacts, exclude_patterns=None,
       os.chdir(base_path)
 
     except Exception as e:
-      raise ValueError("Could not use '{}' as base path: '{}'".format(
-          base_path, e)) from  e
+      raise ValueError(f"Could not use '{base_path}' as base path: '{e}'") from e
 
   # Normalize passed paths
-  norm_artifacts = []
-  for path in artifacts:
-    norm_artifacts.append(os.path.normpath(path))
-
+  norm_artifacts = [os.path.normpath(path) for path in artifacts]
   # Passed exclude patterns take precedence over exclude pattern settings
   if exclude_patterns:
     LOG.info("Overriding setting ARTIFACT_EXCLUDE_PATTERNS with passed"
@@ -242,8 +238,9 @@ def record_artifacts_as_dict(artifacts, exclude_patterns=None,
     for prefix_one, prefix_two in itertools.combinations(lstrip_paths, 2):
       if prefix_one.startswith(prefix_two) or \
           prefix_two.startswith(prefix_one):
-        raise in_toto.exceptions.PrefixError("'{}' and '{}' "
-            "triggered a left substring error".format(prefix_one, prefix_two))
+        raise in_toto.exceptions.PrefixError(
+            f"'{prefix_one}' and '{prefix_two}' triggered a left substring error"
+        )
 
   # Compile the gitignore-style patterns
   exclude_filter = PathSpec.from_lines('gitwildmatch', exclude_patterns or [])
@@ -294,8 +291,7 @@ def record_artifacts_as_dict(artifacts, exclude_patterns=None,
             filepaths.append(norm_filepath)
 
           else:
-            LOG.info("File '{}' appears to be a broken symlink. Skipping..."
-                .format(norm_filepath))
+            LOG.info(f"File '{norm_filepath}' appears to be a broken symlink. Skipping...")
 
         # Apply exlcude patterns on the normalized file paths returned by walk
         if exclude_patterns:
@@ -311,9 +307,8 @@ def record_artifacts_as_dict(artifacts, exclude_patterns=None,
           artifacts_dict[key] = _hash_artifact(filepath,
               normalize_line_endings=normalize_line_endings)
 
-    # Path is no file and no directory
     else:
-      LOG.info("path: {} does not exist, skipping..".format(artifact))
+      LOG.info(f"path: {artifact} does not exist, skipping..")
 
 
   # Change back to where original current working dir
@@ -409,7 +404,7 @@ def in_toto_mock(name, link_cmd_args):
       record_streams=True)
 
   filename = FILENAME_FORMAT_SHORT.format(step_name=name)
-  LOG.info("Storing unsigned link metadata to '{}'...".format(filename))
+  LOG.info(f"Storing unsigned link metadata to '{filename}'...")
   link_metadata.dump(filename)
   return link_metadata
 
@@ -522,7 +517,7 @@ def in_toto_run(name, material_list, product_list, link_cmd_args,
     A Metablock object that contains the resulting link object.
 
   """
-  LOG.info("Running '{}'...".format(name))
+  LOG.info(f"Running '{name}'...")
 
   # Check key formats to fail early
   if signing_key:
@@ -540,7 +535,7 @@ def in_toto_run(name, material_list, product_list, link_cmd_args,
     securesystemslib.formats.PATH_SCHEMA.check_match(metadata_directory)
 
   if material_list:
-    LOG.info("Recording materials '{}'...".format(", ".join(material_list)))
+    LOG.info(f"""Recording materials '{", ".join(material_list)}'...""")
 
   materials_dict = record_artifacts_as_dict(material_list,
       exclude_patterns=exclude_patterns, base_path=base_path,
@@ -548,14 +543,14 @@ def in_toto_run(name, material_list, product_list, link_cmd_args,
       lstrip_paths=lstrip_paths)
 
   if link_cmd_args:
-    LOG.info("Running command '{}'...".format(" ".join(link_cmd_args)))
+    LOG.info(f"""Running command '{" ".join(link_cmd_args)}'...""")
     byproducts = execute_link(link_cmd_args, record_streams)
   else:
     byproducts = {}
 
   if product_list:
     securesystemslib.formats.PATHS_SCHEMA.check_match(product_list)
-    LOG.info("Recording products '{}'...".format(", ".join(product_list)))
+    LOG.info(f"""Recording products '{", ".join(product_list)}'...""")
 
   products_dict = record_artifacts_as_dict(product_list,
       exclude_patterns=exclude_patterns, base_path=base_path,
@@ -594,7 +589,7 @@ def in_toto_run(name, material_list, product_list, link_cmd_args,
     if metadata_directory is not None:
       filename = os.path.join(metadata_directory, filename)
 
-    LOG.info("Storing link metadata to '{}'...".format(filename))
+    LOG.info(f"Storing link metadata to '{filename}'...")
     link_metadata.dump(filename)
 
   return link_metadata
@@ -680,7 +675,7 @@ def in_toto_record_start(step_name, material_list, signing_key=None,
     Writes preliminary link metadata file to disk.
 
   """
-  LOG.info("Start recording '{}'...".format(step_name))
+  LOG.info(f"Start recording '{step_name}'...")
 
   # Fail if there is no signing key arg at all
   if not signing_key and not gpg_keyid and not gpg_use_default:
@@ -700,7 +695,7 @@ def in_toto_record_start(step_name, material_list, signing_key=None,
     securesystemslib.formats.PATH_SCHEMA.check_match(base_path)
 
   if material_list:
-    LOG.info("Recording materials '{}'...".format(", ".join(material_list)))
+    LOG.info(f"""Recording materials '{", ".join(material_list)}'...""")
 
   materials_dict = record_artifacts_as_dict(material_list,
       exclude_patterns=exclude_patterns, base_path=base_path,
@@ -736,8 +731,7 @@ def in_toto_record_start(step_name, material_list, signing_key=None,
   unfinished_fn = UNFINISHED_FILENAME_FORMAT.format(step_name=step_name,
     keyid=signing_keyid)
 
-  LOG.info(
-      "Storing preliminary link metadata to '{}'...".format(unfinished_fn))
+  LOG.info(f"Storing preliminary link metadata to '{unfinished_fn}'...")
   link_metadata.dump(unfinished_fn)
 
 
@@ -827,7 +821,7 @@ def in_toto_record_stop(step_name, product_list, signing_key=None,
     Removes preliminary link metadata file from disk.
 
   """
-  LOG.info("Stop recording '{}'...".format(step_name))
+  LOG.info(f"Stop recording '{step_name}'...")
 
   # Check that we have something to sign and if the formats are right
   if not signing_key and not gpg_keyid and not gpg_use_default:
@@ -854,27 +848,24 @@ def in_toto_record_stop(step_name, product_list, signing_key=None,
     unfinished_fn = UNFINISHED_FILENAME_FORMAT.format(step_name=step_name,
         keyid=signing_key["keyid"])
 
-  # FIXME: Currently there is no way to know the default GPG key's keyid and
-  # so we glob for preliminary link files
   else:
     unfinished_fn_glob = UNFINISHED_FILENAME_FORMAT_GLOB.format(
         step_name=step_name, pattern="*")
     unfinished_fn_list = glob.glob(unfinished_fn_glob)
 
     if not len(unfinished_fn_list):
-      raise in_toto.exceptions.LinkNotFoundError("Could not find a preliminary"
-          " link for step '{}' in the current working directory.".format(
-          step_name))
+      raise in_toto.exceptions.LinkNotFoundError(
+          f"Could not find a preliminary link for step '{step_name}' in the current working directory."
+      )
 
     if len(unfinished_fn_list) > 1:
-      raise in_toto.exceptions.LinkNotFoundError("Found more than one"
-          " preliminary links for step '{}' in the current working directory:"
-          " {}. We need exactly one to stop recording.".format(
-          step_name, ", ".join(unfinished_fn_list)))
+      raise in_toto.exceptions.LinkNotFoundError(
+          f"""Found more than one preliminary links for step '{step_name}' in the current working directory: {", ".join(unfinished_fn_list)}. We need exactly one to stop recording."""
+      )
 
     unfinished_fn = unfinished_fn_list[0]
 
-  LOG.info("Loading preliminary link metadata '{}'...".format(unfinished_fn))
+  LOG.info(f"Loading preliminary link metadata '{unfinished_fn}'...")
   link_metadata = Metablock.load(unfinished_fn)
 
   # The file must have been signed by the same key
@@ -909,7 +900,7 @@ def in_toto_record_stop(step_name, product_list, signing_key=None,
 
   # Record products if a product path list was passed
   if product_list:
-    LOG.info("Recording products '{}'...".format(", ".join(product_list)))
+    LOG.info(f"""Recording products '{", ".join(product_list)}'...""")
 
   link_metadata.signed.products = record_artifacts_as_dict(
       product_list, exclude_patterns=exclude_patterns, base_path=base_path,
@@ -932,8 +923,8 @@ def in_toto_record_stop(step_name, product_list, signing_key=None,
   if metadata_directory is not None:
     fn = os.path.join(metadata_directory, fn)
 
-  LOG.info("Storing link metadata to '{}'...".format(fn))
+  LOG.info(f"Storing link metadata to '{fn}'...")
   link_metadata.dump(fn)
 
-  LOG.info("Removing unfinished link metadata '{}'...".format(unfinished_fn))
+  LOG.info(f"Removing unfinished link metadata '{unfinished_fn}'...")
   os.remove(unfinished_fn)

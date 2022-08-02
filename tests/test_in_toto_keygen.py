@@ -28,12 +28,12 @@ class TestInTotoKeyGenTool(unittest.TestCase, TmpDirMixin):
   logs/exits on Exception. """
 
   @classmethod
-  def setUpClass(self):
-    self.set_up_test_dir()
+  def setUpClass(cls):
+    cls.set_up_test_dir()
 
   @classmethod
-  def tearDownClass(self):
-    self.tear_down_test_dir()
+  def tearDownClass(cls):
+    cls.tear_down_test_dir()
 
   def test_main_required_args(self):
     """Test in-toto-keygen CLI tool with required arguments. """
@@ -49,22 +49,22 @@ class TestInTotoKeyGenTool(unittest.TestCase, TmpDirMixin):
     args = ["in_toto_keygen.py"]
     password = "123456"
     with patch.object(sys, 'argv', args + ["-p", "bob"]), \
-      patch("getpass.getpass", return_value=password), self.assertRaises(
+        patch("getpass.getpass", return_value=password), self.assertRaises(
       SystemExit):
       in_toto_keygen_main()
     with patch.object(sys, 'argv', args + ["-p", "-t", "rsa", "bob"]), \
-      patch("getpass.getpass", return_value=password), self.assertRaises(
+        patch("getpass.getpass", return_value=password), self.assertRaises(
       SystemExit):
       in_toto_keygen_main()
     with patch.object(sys, 'argv', args + ["-t", "ed25519", "bob"]), \
-      self.assertRaises(SystemExit):
+        self.assertRaises(SystemExit):
       in_toto_keygen_main()
     with patch.object(sys, 'argv', args + ["-p", "-t", "ed25519", "bob"]), \
-      patch("getpass.getpass", return_value=password), self.assertRaises(
+        patch("getpass.getpass", return_value=password), self.assertRaises(
       SystemExit):
       in_toto_keygen_main()
     with patch.object(sys, 'argv', args + ["-p", "-b", "3072", "bob"]), \
-      patch("getpass.getpass", return_value=password), self.assertRaises(
+        patch("getpass.getpass", return_value=password), self.assertRaises(
       SystemExit):
       in_toto_keygen_main()
 

@@ -103,8 +103,8 @@ directory.
   parser.add_argument("-b", "--bits", default=3072, type=int, metavar="<bits>",
                             help="key size, or key length, of the RSA key")
 
-  parser.add_argument('--version', action='version',
-                      version='{} {}'.format(parser.prog, __version__))
+  parser.add_argument(
+      '--version', action='version', version=f'{parser.prog} {__version__}')
 
   title_case_action_groups(parser)
 

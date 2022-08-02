@@ -147,8 +147,8 @@ file to the target directory (on stop).
   subparser_stop.add_argument(*METADATA_DIRECTORY_ARGS,
       **METADATA_DIRECTORY_KWARGS)
 
-  parser.add_argument('--version', action='version',
-                      version='{} {}'.format(parser.prog, __version__))
+  parser.add_argument(
+      '--version', action='version', version=f'{parser.prog} {__version__}')
 
   for _parser, _order in [
       (parser, ["Positional Arguments", "Optional Arguments"]),
@@ -183,11 +183,7 @@ def main():
   # we will try to sign with the default key
   gpg_use_default = (args.gpg is True)
 
-  # Otherwise gpg_keyid stays either None or gets the passed argument assigned
-  gpg_keyid = None
-  if not gpg_use_default and args.gpg:
-    gpg_keyid = args.gpg
-
+  gpg_keyid = args.gpg if not gpg_use_default and args.gpg else None
   try:
     # We load the key here because it might prompt the user for a password in
     # case the key is encrypted. Something that should not happen in the lib.

@@ -75,7 +75,7 @@ def _raise_on_bad_retval(return_value, command=None):
     None.
   """
 
-  msg = "Got non-{what} " + "return value '{}'".format(return_value)
+  msg = "Got non-{what} " + f"return value '{return_value}'"
   if command:
     msg = "{0} from command '{1}'.".format(msg, command)
   else:
@@ -202,8 +202,7 @@ def run_all_inspections(layout, persist_inspection_links):
   """
   inspection_links_dict = {}
   for inspection in layout.inspect:
-    LOG.info("Executing command for inspection '{}'...".format(
-        inspection.name))
+    LOG.info(f"Executing command for inspection '{inspection.name}'...")
 
     # FIXME: We don't want to use the base path for runlib so we patch this
     # for now. This will not stay!
@@ -293,22 +292,17 @@ def substitute_parameters(layout, parameter_dictionary):
 
     new_material_rules = []
     for rule in step.expected_materials:
-      new_rule = []
-      for stanza in rule:
-        new_rule.append(stanza.format(**parameter_dictionary))
+      new_rule = [stanza.format(**parameter_dictionary) for stanza in rule]
       new_material_rules.append(new_rule)
 
     new_product_rules = []
     for rule in step.expected_products:
-      new_rule = []
-      for stanza in rule:
-        new_rule.append(stanza.format(**parameter_dictionary))
+      new_rule = [stanza.format(**parameter_dictionary) for stanza in rule]
       new_product_rules.append(new_rule)
 
-    new_expected_command = []
-    for argv in step.expected_command:
-      new_expected_command.append(argv.format(**parameter_dictionary))
-
+    new_expected_command = [
+        argv.format(**parameter_dictionary) for argv in step.expected_command
+    ]
     step.expected_command = new_expected_command
     step.expected_materials = new_material_rules
     step.expected_products = new_product_rules
@@ -316,22 +310,15 @@ def substitute_parameters(layout, parameter_dictionary):
   for inspection in layout.inspect:
     new_material_rules = []
     for rule in inspection.expected_materials:
-      new_rule = []
-      for stanza in rule:
-        new_rule.append(stanza.format(**parameter_dictionary))
+      new_rule = [stanza.format(**parameter_dictionary) for stanza in rule]
       new_material_rules.append(new_rule)
 
     new_product_rules = []
     for rule in inspection.expected_products:
-      new_rule = []
-      for stanza in rule:
-        new_rule.append(stanza.format(**parameter_dictionary))
+      new_rule = [stanza.format(**parameter_dictionary) for stanza in rule]
       new_product_rules.append(new_rule)
 
-    new_run = []
-    for argv in inspection.run:
-      new_run.append(argv.format(**parameter_dictionary))
-
+    new_run = [argv.format(**parameter_dictionary) for argv in inspection.run]
     inspection.run = new_run
     inspection.expected_materials = new_material_rules
     inspection.expected_products = new_product_rules
@@ -486,14 +473,14 @@ def verify_link_signature_thresholds(layout, chain_link_dict):
         continue
 
       except KeyExpirationError as e:
-        LOG.info("Skipping link. {}".format(e))
+        LOG.info(f"Skipping link. {e}")
         continue
 
       # Warn if there are links signed by different subkeys of same main key
       if verification_key["keyid"] in used_main_keyids:
-        LOG.warning("Found links signed by different subkeys of the same main"
-            " key '{}' for step '{}'. Only one of them is counted towards the"
-            " step threshold.".format(verification_key["keyid"], step.name))
+        LOG.warning(
+            f"""Found links signed by different subkeys of the same main key '{verification_key["keyid"]}' for step '{step.name}'. Only one of them is counted towards the step threshold."""
+        )
 
       used_main_keyids.append(verification_key["keyid"])
 
@@ -510,10 +497,9 @@ def verify_link_signature_thresholds(layout, chain_link_dict):
     # different dictionary keys, e.g. {keyid1: KEY1, keyid2: KEY1}
     # Maybe we should add such a check to the layout validation? Or here?
     if valid_authorized_links_cnt < step.threshold:
-      raise ThresholdVerificationError("Step '{}' requires at least '{}' links"
-          " validly signed by different authorized functionaries. Only"
-          " found '{}'".format(step.name, step.threshold,
-          valid_authorized_links_cnt))
+      raise ThresholdVerificationError(
+          f"Step '{step.name}' requires at least '{step.threshold}' links validly signed by different authorized functionaries. Only found '{valid_authorized_links_cnt}'"
+      )
 
     # Add all good links of this step to the dictionary of links of all steps
     verfied_chain_link_dict[step.name] = verified_key_link_dict
@@ -659,16 +645,15 @@ def verify_match_rule(rule_data, artifacts_queue, source_artifacts, links):
   # prefix before filtering with rule pattern (see filter part 2) to prevent
   # globbing in the prefix.
   if rule_data["source_prefix"]:
-    filtered_source_paths = []
     # Add trailing slash to source prefix if it does not exist
     normalized_source_prefix = os.path.join(
         rule_data["source_prefix"], "").replace("\\", "/")
 
-    for artifact_path in artifacts_queue:
-      if artifact_path.startswith(normalized_source_prefix):
-        filtered_source_paths.append(
-            artifact_path[len(normalized_source_prefix):])
-
+    filtered_source_paths = [
+        artifact_path[len(normalized_source_prefix):]
+        for artifact_path in artifacts_queue
+        if artifact_path.startswith(normalized_source_prefix)
+    ]
   else:
     filtered_source_paths = artifacts_queue
 
@@ -752,10 +737,7 @@ def verify_create_rule(rule_pattern, artifacts_queue, materials, products):
   # Filter queued artifacts using the rule pattern
   filtered_artifacts = fnmatch.filter(artifacts_queue, rule_pattern)
 
-  # Consume filtered artifacts that are products but not materials
-  consumed = set(filtered_artifacts) & (products - materials)
-
-  return consumed
+  return set(filtered_artifacts) & (products - materials)
 
 
 def verify_delete_rule(rule_pattern, artifacts_queue, materials, products):
@@ -791,10 +773,7 @@ def verify_delete_rule(rule_pattern, artifacts_queue, materials, products):
   # Filter queued artifacts using the rule pattern
   filtered_artifacts = fnmatch.filter(artifacts_queue, rule_pattern)
 
-  # Consume filtered artifacts that are materials but not products
-  consumed = set(filtered_artifacts) & (materials - products)
-
-  return consumed
+  return set(filtered_artifacts) & (materials - products)
 
 
 def verify_modify_rule(rule_pattern, artifacts_queue, materials, products):
@@ -834,13 +813,10 @@ def verify_modify_rule(rule_pattern, artifacts_queue, materials, products):
   filtered_artifacts = set(filtered_artifacts) & \
       set(materials.keys()) & set(products.keys())
 
-  # Consume filtered artifacts that have different hashes
-  consumed = set()
-  for path in filtered_artifacts:
-    if materials[path] != products[path]:
-      consumed.add(path)
-
-  return consumed
+  return {
+      path
+      for path in filtered_artifacts if materials[path] != products[path]
+  }
 
 
 def verify_allow_rule(rule_pattern, artifacts_queue):
@@ -903,9 +879,9 @@ def verify_disallow_rule(rule_pattern, artifacts_queue):
   filtered_artifacts = fnmatch.filter(artifacts_queue, rule_pattern)
 
   if len(filtered_artifacts):
-    raise RuleVerificationError("'DISALLOW {}' matched the following "
-      "artifacts: {}\n{}".format(rule_pattern, filtered_artifacts,
-      _get_artifact_rule_traceback()))
+    raise RuleVerificationError(
+        f"'DISALLOW {rule_pattern}' matched the following artifacts: {filtered_artifacts}\n{_get_artifact_rule_traceback()}"
+    )
 
 
 def verify_require_rule(filename, artifacts_queue):
@@ -951,15 +927,12 @@ def _get_artifact_rule_traceback():
   # Show all materials and products available in the beginning and
   # label the one that is used to generate a queue.
   for source_type in ["materials", "products"]:
-    traceback_str += "Available {}{}:\n{}\n".format(
-        source_type,
-        [" (used for queue)", ""][RULE_TRACE["source_type"] != source_type],
-        RULE_TRACE[source_type])
+    traceback_str += f'Available {source_type}{[" (used for queue)", ""][RULE_TRACE["source_type"] != source_type]}:\n{RULE_TRACE[source_type]}\n'
 
   for trace_entry in RULE_TRACE["trace"]:
     traceback_str += "Queue after '{0}':\n".format(
         " ".join(trace_entry["rule"]))
-    traceback_str += "{}\n".format(trace_entry["queue"])
+    traceback_str += f'{trace_entry["queue"]}\n'
 
   return traceback_str
 
@@ -1022,8 +995,8 @@ def verify_item_rules(source_name, source_type, rules, links):
   """
   if source_type not in ["materials", "products"]:
     raise securesystemslib.exceptions.FormatError(
-        "Argument 'source_type' of function 'verify_item_rules' has to be "
-        "one of 'materials' or 'products'. Got: '{}'".format(source_type))
+        f"Argument 'source_type' of function 'verify_item_rules' has to be one of 'materials' or 'products'. Got: '{source_type}'"
+    )
 
   # Create shortcuts to item's materials and products (including hashes),
   # required to verify "modify" and "match" rules.
@@ -1050,7 +1023,7 @@ def verify_item_rules(source_name, source_type, rules, links):
 
   # Process rules and remove consumed items from queue in each iteration
   for rule in rules:
-    LOG.info("Verifying '{}'...".format(" ".join(rule)))
+    LOG.info(f"""Verifying '{" ".join(rule)}'...""")
 
     # Parse the rule and create two shortcuts to contained rule data
     rule_data = in_toto.rulelib.unpack_rule(rule)
@@ -1081,8 +1054,6 @@ def verify_item_rules(source_name, source_type, rules, links):
     elif _type == "allow":
       consumed = verify_allow_rule(_pattern, artifacts_queue)
 
-    # It's up to the "disallow" and "require" rule to raise an error if
-    # artifacts were not consumed as intended
     elif _type == "disallow":
       verify_disallow_rule(_pattern, artifacts_queue)
 
@@ -1090,8 +1061,7 @@ def verify_item_rules(source_name, source_type, rules, links):
       verify_require_rule(_pattern, artifacts_queue)
 
     else: # pragma: no cover (unreachable)
-      raise securesystemslib.exceptions.FormatError(
-          "Invaldid rule type '{}'.".format(_type))
+      raise securesystemslib.exceptions.FormatError(f"Invaldid rule type '{_type}'.")
 
     artifacts_queue -= consumed
 
@@ -1127,10 +1097,10 @@ def verify_all_item_rules(items, links):
 
   """
   for item in items:
-    LOG.info("Verifying material rules for '{}'...".format(item.name))
+    LOG.info(f"Verifying material rules for '{item.name}'...")
     verify_item_rules(item.name, "materials", item.expected_materials, links)
 
-    LOG.info("Verifying product rules for '{}'...".format(item.name))
+    LOG.info(f"Verifying product rules for '{item.name}'...")
     verify_item_rules(item.name, "products", item.expected_products, links)
 
 
@@ -1245,15 +1215,10 @@ def reduce_chain_links(chain_link_dict):
 
   """
 
-  reduced_chain_link_dict = {}
-
-  for step_name, key_link_dict in chain_link_dict.items():
-    # Extract the key_link_dict for this step from the passed chain_link_dict
-    # take one exemplary link (e.g. the first in the step_link_dict)
-    # form the reduced_chain_link_dict to return
-    reduced_chain_link_dict[step_name] = list(key_link_dict.values())[0]
-
-  return reduced_chain_link_dict
+  return {
+      step_name: list(key_link_dict.values())[0]
+      for step_name, key_link_dict in chain_link_dict.items()
+  }
 
 
 def verify_sublayouts(layout, chain_link_dict, superlayout_link_dir_path):
@@ -1307,7 +1272,7 @@ def verify_sublayouts(layout, chain_link_dict, superlayout_link_dir_path):
     for keyid, link in key_link_dict.items():
 
       if link.type_ == "layout":
-        LOG.info("Verifying sublayout {}...".format(step_name))
+        LOG.info(f"Verifying sublayout {step_name}...")
         layout_key_dict = {}
 
         # Retrieve the entire key object for the keyid

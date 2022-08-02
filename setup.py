@@ -40,9 +40,8 @@ def get_version(filename="in_toto/__init__.py"):
   """
   with io.open(os.path.join(base_dir, filename), encoding="utf-8") as initfile:
     for line in initfile.readlines():
-      m = re.match("__version__ *= *['\"](.*)['\"]", line)
-      if m:
-        return m.group(1)
+      if m := re.match("__version__ *= *['\"](.*)['\"]", line):
+        return m[1]
 
 with open("README.md") as f:
   long_description = f.read()

@@ -150,8 +150,8 @@ for which the public part can be found in the GPG keyring at '~/.gnupg'.
   verbosity_args.add_argument(*VERBOSE_ARGS, **VERBOSE_KWARGS)
   verbosity_args.add_argument(*QUIET_ARGS, **QUIET_KWARGS)
 
-  parser.add_argument('--version', action='version',
-                      version='{} {}'.format(parser.prog, __version__))
+  parser.add_argument(
+      '--version', action='version', version=f'{parser.prog} {__version__}')
 
   title_case_action_groups(parser)
   sort_action_groups(parser)
@@ -179,9 +179,8 @@ def main():
     layout_key_dict = {}
     if args.layout_keys is not None:
       LOG.info("Loading layout key(s)...")
-      layout_key_dict.update(
-          interface.import_publickeys_from_file(
-              args.layout_keys, args.key_types))
+      layout_key_dict |= interface.import_publickeys_from_file(
+          args.layout_keys, args.key_types)
 
     if args.gpg is not None:
       LOG.info("Loading layout gpg key(s)...")

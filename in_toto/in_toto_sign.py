@@ -121,8 +121,7 @@ def _sign_and_dump_metadata(metadata, args):
     sys.exit(0)
 
   except Exception as e:
-    LOG.error("The following error occurred while signing: "
-        "{}".format(e))
+    LOG.error(f"The following error occurred while signing: {e}")
     sys.exit(2)
 
 
@@ -157,18 +156,16 @@ def _verify_metadata(metadata, args):
 
     for keyid, verification_key in pub_key_dict.items():
       metadata.verify_signature(verification_key)
-      LOG.info("Signature verification passed for keyid '{}'"
-          .format(keyid))
+      LOG.info(f"Signature verification passed for keyid '{keyid}'")
 
     sys.exit(0)
 
   except exceptions.SignatureVerificationError as e:
-    LOG.error("Signature verification failed: {}".format(e))
+    LOG.error(f"Signature verification failed: {e}")
     sys.exit(1)
 
   except Exception as e:
-    LOG.error("The following error occurred while verifying signatures: "
-        "{}".format(e))
+    LOG.error(f"The following error occurred while verifying signatures: {e}")
     sys.exit(2)
 
 
@@ -192,8 +189,9 @@ def _load_metadata(file_path):
     return Metablock.load(file_path)
 
   except Exception as e:
-    LOG.error("The following error occurred while loading the file '{}': "
-        "{}".format(file_path, e))
+    LOG.error(
+        f"The following error occurred while loading the file '{file_path}': {e}"
+    )
     sys.exit(2)
 
 
@@ -306,8 +304,8 @@ Verify layout with a gpg key identified by keyid '...439F3C2'.
   verbosity_args.add_argument(*VERBOSE_ARGS, **VERBOSE_KWARGS)
   verbosity_args.add_argument(*QUIET_ARGS, **QUIET_KWARGS)
 
-  parser.add_argument('--version', action='version',
-                      version='{} {}'.format(parser.prog, __version__))
+  parser.add_argument(
+      '--version', action='version', version=f'{parser.prog} {__version__}')
 
   title_case_action_groups(parser)
   sort_action_groups(parser)
@@ -358,14 +356,15 @@ def main():
     if ((args.key is not None and len(args.key) > 1) or
         (args.gpg is not None and len(args.gpg) > 1)):
       parser.print_help()
-      parser.error("too many arguments: {} Hence signing Link metadata"
-          " with multiple keys is not allowed.".format(link_error_message))
+      parser.error(
+          f"too many arguments: {link_error_message} Hence signing Link metadata with multiple keys is not allowed."
+      )
 
     if args.append:
       parser.print_help()
-      parser.error("wrong arguments: {}. Hence adding signatures to"
-          " existing signatures on link metadata is not allowed."
-          .format(link_error_message))
+      parser.error(
+          f"wrong arguments: {link_error_message}. Hence adding signatures to existing signatures on link metadata is not allowed."
+      )
 
 
   if args.verify:

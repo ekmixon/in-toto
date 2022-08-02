@@ -66,10 +66,7 @@ def _colon_split(value):
   """ If `value` contains colons, return a list split at colons,
   return value otherwise. """
   value_list = value.split(":")
-  if len(value_list) > 1:
-    return value_list
-
-  return value
+  return value_list if len(value_list) > 1 else value
 
 
 def get_env():
@@ -213,8 +210,7 @@ def set_settings():
   # If the user has specified one of the settings whitelisted in
   # IN_TOTO_SETTINGS per envvar or rcfile, override the item in `settings.py`
   for setting in IN_TOTO_SETTINGS:
-    user_setting = user_settings.get(setting)
-    if user_setting:
+    if user_setting := user_settings.get(setting):
       LOG.info("Setting (user): {0}={1}".format(
           setting, user_setting))
       setattr(in_toto.settings, setting, user_setting)

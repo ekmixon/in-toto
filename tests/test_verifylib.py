@@ -91,7 +91,7 @@ class TestRunAllInspections(unittest.TestCase, TmpDirMixin):
   """Test verifylib.run_all_inspections(layout, persist_inspection_links)"""
 
   @classmethod
-  def setUpClass(self):
+  def setUpClass(cls):
     """
     Create layout with dummy inpsection.
     Create and change into temp test directory with dummy artifact."""
@@ -101,23 +101,29 @@ class TestRunAllInspections(unittest.TestCase, TmpDirMixin):
         os.path.dirname(os.path.realpath(__file__)), "scripts")
 
     # Create layout with one inspection
-    self.layout = Layout.read({
-        "_type": "layout",
+    cls.layout = Layout.read({
+        "_type":
+        "layout",
         "steps": [],
         "inspect": [{
-          "name": "touch-bar",
-          "run": ["python", os.path.join(scripts_directory, "touch"), "bar"],
-        }]
-      })
+            "name":
+            "touch-bar",
+            "run": [
+                "python",
+                os.path.join(scripts_directory, "touch"),
+                "bar",
+            ],
+        }],
+    })
 
     # Create directory where the verification will take place
-    self.set_up_test_dir()
+    cls.set_up_test_dir()
     with open("foo", "w") as f:
       f.write("foo")
 
   @classmethod
-  def tearDownClass(self):
-    self.tear_down_test_dir()
+  def tearDownClass(cls):
+    cls.tear_down_test_dir()
 
   def test_inpsection_artifacts_with_base_path_ignored(self):
     """Create new dummy test dir and set as base path, must ignore. """
@@ -219,7 +225,7 @@ class TestVerifyRule(unittest.TestCase):
       pattern, queue, materials, products, expected = test_data
       result = verify_delete_rule(pattern, queue, materials, products)
       self.assertSetEqual(result, expected,
-          "test {}: {}".format(i, dict(zip(test_data_keys, test_data))))
+                          f"test {i}: {dict(zip(test_data_keys, test_data))}")
 
 
   def test_verify_create_rule(self):
@@ -246,7 +252,7 @@ class TestVerifyRule(unittest.TestCase):
       pattern, queue, materials, products, expected = test_data
       result = verify_create_rule(pattern, queue, materials, products)
       self.assertSetEqual(result, expected,
-          "test {}: {}".format(i, dict(zip(test_data_keys, test_data))))
+                          f"test {i}: {dict(zip(test_data_keys, test_data))}")
 
 
   def test_verify_modify_rule(self):
@@ -283,7 +289,7 @@ class TestVerifyRule(unittest.TestCase):
       pattern, queue, materials, products, expected = test_data
       result = verify_modify_rule(pattern, queue, materials, products)
       self.assertSetEqual(result, expected,
-          "test {}: {}".format(i, dict(zip(test_data_keys, test_data))))
+                          f"test {i}: {dict(zip(test_data_keys, test_data))}")
 
 
   def test_verify_allow_rule(self):
@@ -306,7 +312,7 @@ class TestVerifyRule(unittest.TestCase):
       pattern, queue, expected = test_data
       result = verify_allow_rule(pattern, queue)
       self.assertSetEqual(result, expected,
-          "test {}: {}".format(i, dict(zip(test_data_keys, test_data))))
+                          f"test {i}: {dict(zip(test_data_keys, test_data))}")
 
 
   def test_verify_disallow_rule(self):
@@ -326,7 +332,7 @@ class TestVerifyRule(unittest.TestCase):
     for i, test_data in enumerate(test_cases):
       pattern, queue, should_raise = test_data
 
-      msg = "test {}: {}".format(i, dict(zip(test_data_keys, test_data)))
+      msg = f"test {i}: {dict(zip(test_data_keys, test_data))}"
       exception = None
 
       try:
@@ -335,10 +341,10 @@ class TestVerifyRule(unittest.TestCase):
         exception = e
 
       if should_raise and not exception:
-        self.fail("Expected 'RuleVerificationError'\n{}".format(msg))
+        self.fail(f"Expected 'RuleVerificationError'\n{msg}")
 
       if exception and not should_raise:
-        self.fail("Unexpected {}\n{}".format(exception, msg))
+        self.fail(f"Unexpected {exception}\n{msg}")
 
 
   def test_verify_require_rule(self):
@@ -358,7 +364,7 @@ class TestVerifyRule(unittest.TestCase):
     for i, test_data in enumerate(test_cases):
       pattern, queue, should_raise = test_data
 
-      msg = "test {}: {}".format(i, dict(zip(test_data_keys, test_data)))
+      msg = f"test {i}: {dict(zip(test_data_keys, test_data))}"
       exception = None
 
       try:
@@ -367,10 +373,10 @@ class TestVerifyRule(unittest.TestCase):
         exception = e
 
       if should_raise and not exception:
-        self.fail("Expected 'RuleVerificationError'\n{}".format(msg))
+        self.fail(f"Expected 'RuleVerificationError'\n{msg}")
 
       if exception and not should_raise:
-        self.fail("Unexpected {}\n{}".format(exception, msg))
+        self.fail(f"Unexpected {exception}\n{msg}")
 
 
 
@@ -382,13 +388,13 @@ class TestVerifyMatchRule(unittest.TestCase):
 
     # Dummy artifact hashes
     self.sha256_foo = \
-        "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3"
+          "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3"
     self.sha256_foobar = \
-        "155c693a6b7481f48626ebfc545f05236df679f0099225d6d0bc472e6dd21155"
+          "155c693a6b7481f48626ebfc545f05236df679f0099225d6d0bc472e6dd21155"
     self.sha256_bar = \
-        "cfdaaf1ab2e4661952a9dec5e8fa3c360c1b06b1a073e8493a7c46d2af8c504b"
+          "cfdaaf1ab2e4661952a9dec5e8fa3c360c1b06b1a073e8493a7c46d2af8c504b"
     self.sha256_barfoo = \
-        "2036784917e49b7685c7c17e03ddcae4a063979aa296ee5090b5bb8f8aeafc5d"
+          "2036784917e49b7685c7c17e03ddcae4a063979aa296ee5090b5bb8f8aeafc5d"
 
     # Link dictionary containing dummy artifacts related to Steps the rule is
     # matched with (match destination).
@@ -425,157 +431,183 @@ class TestVerifyMatchRule(unittest.TestCase):
     test_data_keys = [
         "rule string", "artifacts queue", "source artifacts", "expected"]
     test_cases = [
-      [
-        # Consume foo matching with dest material foo
-        "MATCH foo WITH MATERIALS FROM dest-item",
-        set(self.materials.keys()), self.materials,
-        {"foo"}
-      ],
-      [
-        # Consume foo matching with dest product foo
-        "MATCH bar WITH PRODUCTS FROM dest-item",
-        set(self.products.keys()), self.products,
-        {"bar"}
-      ],
-      [
-        # Consume sub/foo matching with dest material foo
-        "MATCH foo IN sub WITH MATERIALS FROM dest-item",
-        set(self.materials.keys()), self.materials,
-        {"sub/foo"}
-      ],
-      [
-        # Consume sub/foo matching with dest material foo (ignore trailing /)
-        "MATCH foo IN sub/ WITH MATERIALS FROM dest-item",
-        set(self.materials.keys()), self.materials,
-        {"sub/foo"}
-      ],
-      [
-        # Consume sub/bar matching with dest product bar
-        "MATCH bar IN sub WITH PRODUCTS FROM dest-item",
-        set(self.products.keys()), self.products,
-        {"sub/bar"}
-      ],
-      [
-        # Consume foo matching with dest material sub/foo
-        "MATCH foo WITH MATERIALS IN sub FROM dest-item",
-        set(self.materials.keys()), self.materials,
-        {"foo"}
-      ],
-      [
-        # Consume bar matching with dest product sub/bar
-        "MATCH bar WITH PRODUCTS IN sub FROM dest-item",
-        set(self.products.keys()), self.products,
-        {"bar"}
-      ],
-      [
-        # Consume bar matching with dest product sub/bar (ignore trailing /)
-        "MATCH bar WITH PRODUCTS IN sub/ FROM dest-item",
-        set(self.products.keys()), self.products,
-        {"bar"}
-      ],
-      [
-        # Consume foo* matching with dest material foo*
-        "MATCH foo* WITH MATERIALS FROM dest-item",
-        set(self.materials.keys()), self.materials,
-        {"foo", "foobar"}
-      ],
-      [
-        # Consume sub/foo* matching with dest material foo*
-        "MATCH foo* IN sub WITH MATERIALS FROM dest-item",
-        set(self.materials.keys()), self.materials,
-        {"sub/foo", "sub/foobar"}
-      ],
-      [
-        # Consume bar* matching with dest product bar*
-        "MATCH bar* WITH PRODUCTS FROM dest-item",
-        set(self.products.keys()), self.products,
-        {"bar", "barfoo"}
-      ],
-      [
-        # Consume bar* matching with dest product sub/bar*
-        "MATCH bar* WITH PRODUCTS IN sub FROM dest-item",
-        set(self.products.keys()), self.products,
-        {"bar", "barfoo"}
-      ],
-      [
-        # Don't consume (empty queue)
-        "MATCH foo WITH MATERIALS FROM dest-item",
-        set(), self.materials,
-        set()
-      ],
-      [
-        # Don't consume (no destination artifact)
-        "MATCH foo WITH PRODUCTS FROM dest-item",
-        set(self.materials.keys()), self.materials,
-        set()
-      ],
-      [
-        # Don't consume (non-matching hashes)
-        "MATCH foo WITH MATERIALS FROM dest-item",
-        {"foo"}, {"foo": {"sha256": "deadbeef"}},
-        set()
-      ],
-      [
-        # Don't consume (missing link)
-        "MATCH foo WITH MATERIALS FROM dest-item-missing-link",
-        set(self.materials.keys()), self.materials,
-        set()
-      ],
-      [
-        # Ensures the sub/bar file matches the product file in the sub folder
-        # from the dest-item step.
-        "MATCH bar IN sub WITH PRODUCTS IN sub FROM dest-item",
-        set(self.products.keys()), self.products,
-        {"sub/bar", "sub/bar"}
-      ],
-      [
-        # Ensures the sub/bar and sub/barfoo files matches the product
-        # files in the sub folder from the dest-item step.
-        "MATCH bar* IN sub WITH PRODUCTS IN sub/ FROM dest-item",
-        set(self.products.keys()), self.products,
-        {"sub/bar", "sub/barfoo"}
-      ],
-      [
-        # Ensure the sub/bar file matches the product file in the
-        # sub/lib folder from the dest-item step.
-        "MATCH bar IN sub WITH PRODUCTS IN sub/lib FROM dest-item",
-        set(self.products.keys()), self.products,
-        {"sub/bar"}
-      ],
-      [
-        # Do not consume. Missing link
-        "MATCH bar IN sub WITH PRODUCTS IN sub FROM dest-item-missing-link",
-        set(self.products.keys()), self.products,
-        set()
-      ],
-      [
-        # Ensures the sub/foo file matches the material file in the
-        # lib folder from the dest-item step.
-        "MATCH foo IN sub WITH MATERIALS IN lib FROM dest-item",
-        set(self.materials.keys()), self.materials,
-        {"sub/foo"}
-      ],
-      [
-        # Ensures any sub/foo and sub/foobar files matches material
-        # files in the lib folder from the dest-item step.
-        "MATCH foo* IN sub WITH MATERIALS IN lib/ FROM dest-item",
-        set(self.materials.keys()), self.materials,
-        {"sub/foo", "sub/foobar"}
-      ],
-      [
-        # Ensures the sub/foo file matches the material files in the lib/build
-        # the lib/build folder from the dest-item step.
-        "MATCH foo IN sub WITH MATERIALS IN lib/build FROM dest-item",
-        set(self.materials.keys()), self.materials,
-        {"sub/foo"}
-      ],
-      [
-        # Ensures the sub/foo and sub/foobar files matches the material files
-        # in the lib/build folder from the dest-item step.
-        "MATCH foo* IN sub WITH MATERIALS IN lib/build FROM dest-item",
-        set(self.materials.keys()), self.materials,
-        {"sub/foo", "sub/foobar"}
-      ]
+        [
+            # Consume foo matching with dest material foo
+            "MATCH foo WITH MATERIALS FROM dest-item",
+            set(self.materials.keys()),
+            self.materials,
+            {"foo"},
+        ],
+        [
+            # Consume foo matching with dest product foo
+            "MATCH bar WITH PRODUCTS FROM dest-item",
+            set(self.products.keys()),
+            self.products,
+            {"bar"},
+        ],
+        [
+            # Consume sub/foo matching with dest material foo
+            "MATCH foo IN sub WITH MATERIALS FROM dest-item",
+            set(self.materials.keys()),
+            self.materials,
+            {"sub/foo"},
+        ],
+        [
+            # Consume sub/foo matching with dest material foo (ignore trailing /)
+            "MATCH foo IN sub/ WITH MATERIALS FROM dest-item",
+            set(self.materials.keys()),
+            self.materials,
+            {"sub/foo"},
+        ],
+        [
+            # Consume sub/bar matching with dest product bar
+            "MATCH bar IN sub WITH PRODUCTS FROM dest-item",
+            set(self.products.keys()),
+            self.products,
+            {"sub/bar"},
+        ],
+        [
+            # Consume foo matching with dest material sub/foo
+            "MATCH foo WITH MATERIALS IN sub FROM dest-item",
+            set(self.materials.keys()),
+            self.materials,
+            {"foo"},
+        ],
+        [
+            # Consume bar matching with dest product sub/bar
+            "MATCH bar WITH PRODUCTS IN sub FROM dest-item",
+            set(self.products.keys()),
+            self.products,
+            {"bar"},
+        ],
+        [
+            # Consume bar matching with dest product sub/bar (ignore trailing /)
+            "MATCH bar WITH PRODUCTS IN sub/ FROM dest-item",
+            set(self.products.keys()),
+            self.products,
+            {"bar"},
+        ],
+        [
+            # Consume foo* matching with dest material foo*
+            "MATCH foo* WITH MATERIALS FROM dest-item",
+            set(self.materials.keys()),
+            self.materials,
+            {"foo", "foobar"},
+        ],
+        [
+            # Consume sub/foo* matching with dest material foo*
+            "MATCH foo* IN sub WITH MATERIALS FROM dest-item",
+            set(self.materials.keys()),
+            self.materials,
+            {"sub/foo", "sub/foobar"},
+        ],
+        [
+            # Consume bar* matching with dest product bar*
+            "MATCH bar* WITH PRODUCTS FROM dest-item",
+            set(self.products.keys()),
+            self.products,
+            {"bar", "barfoo"},
+        ],
+        [
+            # Consume bar* matching with dest product sub/bar*
+            "MATCH bar* WITH PRODUCTS IN sub FROM dest-item",
+            set(self.products.keys()),
+            self.products,
+            {"bar", "barfoo"},
+        ],
+        [
+            # Don't consume (empty queue)
+            "MATCH foo WITH MATERIALS FROM dest-item",
+            set(),
+            self.materials,
+            set(),
+        ],
+        [
+            # Don't consume (no destination artifact)
+            "MATCH foo WITH PRODUCTS FROM dest-item",
+            set(self.materials.keys()),
+            self.materials,
+            set(),
+        ],
+        [
+            # Don't consume (non-matching hashes)
+            "MATCH foo WITH MATERIALS FROM dest-item",
+            {"foo"},
+            {
+                "foo": {
+                    "sha256": "deadbeef"
+                }
+            },
+            set(),
+        ],
+        [
+            # Don't consume (missing link)
+            "MATCH foo WITH MATERIALS FROM dest-item-missing-link",
+            set(self.materials.keys()),
+            self.materials,
+            set(),
+        ],
+        [
+            "MATCH bar IN sub WITH PRODUCTS IN sub FROM dest-item",
+            set(self.products.keys()),
+            self.products,
+            {"sub/bar"},
+        ],
+        [
+            # Ensures the sub/bar and sub/barfoo files matches the product
+            # files in the sub folder from the dest-item step.
+            "MATCH bar* IN sub WITH PRODUCTS IN sub/ FROM dest-item",
+            set(self.products.keys()),
+            self.products,
+            {"sub/bar", "sub/barfoo"},
+        ],
+        [
+            # Ensure the sub/bar file matches the product file in the
+            # sub/lib folder from the dest-item step.
+            "MATCH bar IN sub WITH PRODUCTS IN sub/lib FROM dest-item",
+            set(self.products.keys()),
+            self.products,
+            {"sub/bar"},
+        ],
+        [
+            # Do not consume. Missing link
+            "MATCH bar IN sub WITH PRODUCTS IN sub FROM dest-item-missing-link",
+            set(self.products.keys()),
+            self.products,
+            set(),
+        ],
+        [
+            # Ensures the sub/foo file matches the material file in the
+            # lib folder from the dest-item step.
+            "MATCH foo IN sub WITH MATERIALS IN lib FROM dest-item",
+            set(self.materials.keys()),
+            self.materials,
+            {"sub/foo"},
+        ],
+        [
+            # Ensures any sub/foo and sub/foobar files matches material
+            # files in the lib folder from the dest-item step.
+            "MATCH foo* IN sub WITH MATERIALS IN lib/ FROM dest-item",
+            set(self.materials.keys()),
+            self.materials,
+            {"sub/foo", "sub/foobar"},
+        ],
+        [
+            # Ensures the sub/foo file matches the material files in the lib/build
+            # the lib/build folder from the dest-item step.
+            "MATCH foo IN sub WITH MATERIALS IN lib/build FROM dest-item",
+            set(self.materials.keys()),
+            self.materials,
+            {"sub/foo"},
+        ],
+        [
+            # Ensures the sub/foo and sub/foobar files matches the material files
+            # in the lib/build folder from the dest-item step.
+            "MATCH foo* IN sub WITH MATERIALS IN lib/build FROM dest-item",
+            set(self.materials.keys()),
+            self.materials,
+            {"sub/foo", "sub/foobar"},
+        ],
     ]
 
     for i, test_data in enumerate(test_cases):
@@ -587,9 +619,11 @@ class TestVerifyMatchRule(unittest.TestCase):
       result = verify_match_rule(
           rule_data, queue, source_artifacts, self.links)
 
-      self.assertSetEqual(result, expected,
-          "'result': {}\n test {}: {}, 'links':{}".format(result,
-          i, dict(zip(test_data_keys, test_data)), self.links))
+      self.assertSetEqual(
+          result,
+          expected,
+          f"'result': {result}\n test {i}: {dict(zip(test_data_keys, test_data))}, 'links':{self.links}",
+      )
 
 
 
@@ -599,9 +633,9 @@ class TestVerifyItemRules(unittest.TestCase):
   def setUp(self):
     self.item_name = "item"
     self.sha256_1 = \
-        "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3"
+          "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3"
     self.sha256_2 = \
-        "cfdaaf1ab2e4661952a9dec5e8fa3c360c1b06b1a073e8493a7c46d2af8c504b"
+          "cfdaaf1ab2e4661952a9dec5e8fa3c360c1b06b1a073e8493a7c46d2af8c504b"
 
     self.links = {
       "item": Metablock(signed=Link(name="item",
@@ -669,9 +703,9 @@ class TestVerifyAllItemRules(unittest.TestCase):
     """
 
     self.sha256_foo = \
-        "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3"
+          "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3"
     self.sha256_foo_tar = \
-        "93c3c35a039a6a3d53e81c5dbee4ebb684de57b7c8be11b8739fd35804a0e918"
+          "93c3c35a039a6a3d53e81c5dbee4ebb684de57b7c8be11b8739fd35804a0e918"
 
     self.steps = [
         Step(name="write-code",
@@ -762,7 +796,7 @@ class TestInTotoVerify(unittest.TestCase, TmpDirMixin):
 
   """
   @classmethod
-  def setUpClass(self):
+  def setUpClass(cls):
     """Creates and changes into temporary directory.
     Copies demo files to temp dir...
       - owner/functionary key pairs
@@ -782,11 +816,11 @@ class TestInTotoVerify(unittest.TestCase, TmpDirMixin):
         os.path.dirname(os.path.realpath(__file__)), "scripts")
 
     # Create and change into temporary directory
-    self.set_up_test_dir()
+    cls.set_up_test_dir()
 
     # Copy demo files to temp dir
     for fn in os.listdir(demo_files):
-      shutil.copy(os.path.join(demo_files, fn), self.test_dir)
+      shutil.copy(os.path.join(demo_files, fn), cls.test_dir)
 
     # copy scripts over
     shutil.copytree(scripts_directory, "scripts")
@@ -795,44 +829,44 @@ class TestInTotoVerify(unittest.TestCase, TmpDirMixin):
     layout_template = Metablock.load("demo.layout.template")
 
     # Store various layout paths to be used in tests
-    self.layout_single_signed_path = "single-signed.layout"
-    self.layout_double_signed_path = "double-signed.layout"
-    self.layout_bad_sig = "bad-sig.layout"
-    self.layout_expired_path = "expired.layout"
-    self.layout_failing_step_rule_path = "failing-step-rule.layout"
-    self.layout_failing_inspection_rule_path = "failing-inspection-rule.layout"
-    self.layout_failing_inspection_retval = "failing-inspection-retval.layout"
-    self.layout_no_steps_no_inspections = "no_steps_no_inspections.layout"
+    cls.layout_single_signed_path = "single-signed.layout"
+    cls.layout_double_signed_path = "double-signed.layout"
+    cls.layout_bad_sig = "bad-sig.layout"
+    cls.layout_expired_path = "expired.layout"
+    cls.layout_failing_step_rule_path = "failing-step-rule.layout"
+    cls.layout_failing_inspection_rule_path = "failing-inspection-rule.layout"
+    cls.layout_failing_inspection_retval = "failing-inspection-retval.layout"
+    cls.layout_no_steps_no_inspections = "no_steps_no_inspections.layout"
 
     # Import layout signing keys
     alice = import_rsa_privatekey_from_file("alice")
     bob = import_rsa_privatekey_from_file("bob")
-    self.alice_path = "alice.pub"
-    self.bob_path = "bob.pub"
+    cls.alice_path = "alice.pub"
+    cls.bob_path = "bob.pub"
 
     # dump single signed layout
     layout = copy.deepcopy(layout_template)
     layout.sign(alice)
-    layout.dump(self.layout_single_signed_path)
+    layout.dump(cls.layout_single_signed_path)
 
     # dump double signed layout
     layout = copy.deepcopy(layout_template)
     layout.sign(alice)
     layout.sign(bob)
-    layout.dump(self.layout_double_signed_path)
+    layout.dump(cls.layout_double_signed_path)
 
     # dump layout with bad signature
     layout = copy.deepcopy(layout_template)
     layout.sign(alice)
     layout.signed.readme = "this breaks the signature"
-    layout.dump(self.layout_bad_sig)
+    layout.dump(cls.layout_bad_sig)
 
     # dump expired layout
     layout = copy.deepcopy(layout_template)
-    layout.signed.expires = (datetime.today() +
-        relativedelta(months=-1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    layout.signed.expires = ((datetime.now() + relativedelta(months=-1))
+                             ).strftime("%Y-%m-%dT%H:%M:%SZ")
     layout.sign(alice)
-    layout.dump(self.layout_expired_path)
+    layout.dump(cls.layout_expired_path)
 
     # dump layout with failing step rule
     layout = copy.deepcopy(layout_template)
@@ -841,7 +875,7 @@ class TestInTotoVerify(unittest.TestCase, TmpDirMixin):
     layout.signed.steps[0].expected_products.insert(0,
         ["MODIFY", "*"])
     layout.sign(alice)
-    layout.dump(self.layout_failing_step_rule_path)
+    layout.dump(cls.layout_failing_step_rule_path)
 
     # dump layout with failing inspection rule
     layout = copy.deepcopy(layout_template)
@@ -850,23 +884,23 @@ class TestInTotoVerify(unittest.TestCase, TmpDirMixin):
     layout.signed.inspect[0].expected_materials.append(
         ["DISALLOW", "*"])
     layout.sign(alice)
-    layout.dump(self.layout_failing_inspection_rule_path)
+    layout.dump(cls.layout_failing_inspection_rule_path)
 
     # dump layout with failing inspection retval
     layout = copy.deepcopy(layout_template)
     layout.signed.inspect[0].run = ["python", "./scripts/expr", "1", "/", "0"]
     layout.sign(alice)
-    layout.dump(self.layout_failing_inspection_retval)
+    layout.dump(cls.layout_failing_inspection_retval)
 
     # dump empty layout
     layout = Metablock(signed=Layout())
     layout.sign(alice)
-    layout.dump(self.layout_no_steps_no_inspections)
-    self.alice = alice
+    layout.dump(cls.layout_no_steps_no_inspections)
+    cls.alice = alice
 
   @classmethod
-  def tearDownClass(self):
-    self.tear_down_test_dir()
+  def tearDownClass(cls):
+    cls.tear_down_test_dir()
 
 
   def test_verify_passing(self):
@@ -969,26 +1003,25 @@ class TestInTotoVerifyThresholds(unittest.TestCase):
 
 
   @classmethod
-  def setUpClass(self):
+  def setUpClass(cls):
     """Load test keys from demo files. """
     demo_files = os.path.join(
         os.path.dirname(os.path.realpath(__file__)), "demo_files")
 
-    self.alice = import_rsa_privatekey_from_file(
+    cls.alice = import_rsa_privatekey_from_file(
         os.path.join(demo_files, "alice"))
-    self.alice_pubkey = import_rsa_publickey_from_file(
+    cls.alice_pubkey = import_rsa_publickey_from_file(
         os.path.join(demo_files, "alice.pub"))
-    self.alice_keyid = self.alice["keyid"]
+    cls.alice_keyid = cls.alice["keyid"]
 
-    self.bob = import_rsa_privatekey_from_file(
-        os.path.join(demo_files, "bob"))
-    self.bob_pubkey = import_rsa_publickey_from_file(
+    cls.bob = import_rsa_privatekey_from_file(os.path.join(demo_files, "bob"))
+    cls.bob_pubkey = import_rsa_publickey_from_file(
         os.path.join(demo_files, "bob.pub"))
-    self.bob_keyid = self.bob["keyid"]
+    cls.bob_keyid = cls.bob["keyid"]
 
-    self.name = "test"
-    self.foo_hash = \
-        "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3"
+    cls.name = "test"
+    cls.foo_hash = (
+        "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3")
 
 
   def test_thresholds_skip_unauthorized_links(self):
@@ -1389,12 +1422,14 @@ class TestInTotoVerifyThresholdsGpgSubkeys(
     )
 
     with self.assertRaises(ThresholdVerificationError), \
-        patch("in_toto.verifylib.LOG") as mock_log:
+          patch("in_toto.verifylib.LOG") as mock_log:
       verify_link_signature_thresholds(layout, chain_link_dict)
 
     msg = mock_log.info.call_args[0][0]
-    self.assertTrue("Skipping link" in msg and "expired" in msg,
-        "Unexpected log message: {}".format(msg))
+    self.assertTrue(
+        "Skipping link" in msg and "expired" in msg,
+        f"Unexpected log message: {msg}",
+    )
 
 
 class TestVerifySublayouts(unittest.TestCase, TmpDirMixin):
@@ -1402,7 +1437,7 @@ class TestVerifySublayouts(unittest.TestCase, TmpDirMixin):
   Call with one-step super layout that has a sublayout (demo layout). """
 
   @classmethod
-  def setUpClass(self):
+  def setUpClass(cls):
     """Creates and changes into temporary directory and prepares two layouts.
     The superlayout, which has one step and its sublayout, which is the usual
     demo layout (write code, package, inspect tar). """
@@ -1415,11 +1450,11 @@ class TestVerifySublayouts(unittest.TestCase, TmpDirMixin):
         os.path.dirname(os.path.realpath(__file__)), "scripts")
 
     # Create and change into temporary directory
-    self.set_up_test_dir()
+    cls.set_up_test_dir()
 
     # Copy demo files to temp dir
     for fn in os.listdir(demo_files):
-      shutil.copy(os.path.join(demo_files, fn), self.test_dir)
+      shutil.copy(os.path.join(demo_files, fn), cls.test_dir)
 
     # copy portable scripts over
     shutil.copytree(scripts_directory, 'scripts')
@@ -1451,20 +1486,20 @@ class TestVerifySublayouts(unittest.TestCase, TmpDirMixin):
     sub_layout.dump(sub_layout_path)
 
     # Create super layout that has only one step, the sublayout
-    self.super_layout = Layout()
-    self.super_layout.keys[alice_pub["keyid"]] = alice_pub
+    cls.super_layout = Layout()
+    cls.super_layout.keys[alice_pub["keyid"]] = alice_pub
     sub_layout_step = Step(
         name=sub_layout_name,
         pubkeys=[alice_pub["keyid"]]
       )
-    self.super_layout.steps.append(sub_layout_step)
+    cls.super_layout.steps.append(sub_layout_step)
 
     # Load the super layout links (i.e. the sublayout)
-    self.super_layout_links = load_links_for_layout(self.super_layout, ".")
+    cls.super_layout_links = load_links_for_layout(cls.super_layout, ".")
 
   @classmethod
-  def tearDownClass(self):
-    self.tear_down_test_dir()
+  def tearDownClass(cls):
+    cls.tear_down_test_dir()
 
 
   def test_verify_demo_as_sublayout(self):
@@ -1490,10 +1525,10 @@ class TestInTotoVerifyMultiLevelSublayouts(unittest.TestCase, TmpDirMixin):
     # We don't need to copy the demo files, we just load the keys
     keys = {}
     for key_name in ["alice", "bob", "carl"]:
-      keys[key_name + "_priv"] = import_rsa_privatekey_from_file(
+      keys[f"{key_name}_priv"] = import_rsa_privatekey_from_file(
           os.path.join(demo_files, key_name))
-      keys[key_name + "_pub"] = import_rsa_publickey_from_file(
-          os.path.join(demo_files, key_name + ".pub"))
+      keys[f"{key_name}_pub"] = import_rsa_publickey_from_file(
+          os.path.join(demo_files, f"{key_name}.pub"))
 
 
     # Create layout hierarchy
@@ -1594,10 +1629,10 @@ class TestSublayoutVerificationMatchRule(unittest.TestCase, TmpDirMixin):
     # We don't need to copy the demo files, we just load the keys
     keys = {}
     for key_name in ["alice", "bob"]:
-      keys[key_name + "_priv"] = import_rsa_privatekey_from_file(
-        os.path.join(demo_files, key_name))
-      keys[key_name + "_pub"] = import_rsa_publickey_from_file(
-        os.path.join(demo_files, key_name + ".pub"))
+      keys[f"{key_name}_priv"] = import_rsa_privatekey_from_file(
+          os.path.join(demo_files, key_name))
+      keys[f"{key_name}_pub"] = import_rsa_publickey_from_file(
+          os.path.join(demo_files, f"{key_name}.pub"))
 
     # Create layout hierarchy
 
@@ -1665,7 +1700,7 @@ class TestGetSummaryLink(unittest.TestCase, TmpDirMixin):
   """
 
   @classmethod
-  def setUpClass(self):
+  def setUpClass(cls):
     """Creates and changes into temporary directory and prepares two layouts.
     The superlayout, which has one step and its sublayout, which is the usual
     demo layout (write code, package, inspect tar). """
@@ -1675,23 +1710,20 @@ class TestGetSummaryLink(unittest.TestCase, TmpDirMixin):
         os.path.dirname(os.path.realpath(__file__)), "demo_files")
 
     # Create and change into temporary directory
-    self.set_up_test_dir()
+    cls.set_up_test_dir()
 
     # Copy demo files to temp dir
     for fn in os.listdir(demo_files):
-      shutil.copy(os.path.join(demo_files, fn), self.test_dir)
+      shutil.copy(os.path.join(demo_files, fn), cls.test_dir)
 
-    self.demo_layout = Metablock.load("demo.layout.template")
-    self.code_link = Metablock.load("package.2f89b927.link")
-    self.package_link = Metablock.load("write-code.776a00e2.link")
-    self.demo_links = {
-        "write-code": self.code_link,
-        "package": self.package_link
-      }
+    cls.demo_layout = Metablock.load("demo.layout.template")
+    cls.code_link = Metablock.load("package.2f89b927.link")
+    cls.package_link = Metablock.load("write-code.776a00e2.link")
+    cls.demo_links = {"write-code": cls.code_link, "package": cls.package_link}
 
   @classmethod
-  def tearDownClass(self):
-    self.tear_down_test_dir()
+  def tearDownClass(cls):
+    cls.tear_down_test_dir()
 
   def test_get_summary_link_from_demo_layout(self):
     """Create summary link from demo link files and compare properties. """

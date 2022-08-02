@@ -164,8 +164,8 @@ e.g. 'document.pdf'.
       "command to be executed. It is separated from named and optional"
       " arguments by a double dash '--'."))
 
-  parser.add_argument('--version', action='version',
-                      version='{} {}'.format(parser.prog, __version__))
+  parser.add_argument(
+      '--version', action='version', version=f'{parser.prog} {__version__}')
 
   title_case_action_groups(parser)
   sort_action_groups(parser)
@@ -195,11 +195,7 @@ def main():
   # we will try to sign with the default key
   gpg_use_default = (args.gpg is True)
 
-  # Otherwise we interpret it as actual keyid
-  gpg_keyid = None
-  if args.gpg is not True:
-    gpg_keyid = args.gpg
-
+  gpg_keyid = args.gpg if args.gpg is not True else None
   # If no_command is specified run in_toto_run without executing a command
   if args.no_command:
     args.link_cmd = []

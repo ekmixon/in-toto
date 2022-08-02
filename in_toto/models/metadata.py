@@ -90,7 +90,7 @@ class Metablock(ValidationMixin):
 
     """
     with open(path, "wb") as fp:
-      fp.write("{}".format(self).encode("utf-8"))
+      fp.write(f"{self}".encode("utf-8"))
 
 
   @staticmethod
@@ -240,8 +240,8 @@ class Metablock(ValidationMixin):
         break
 
     else:
-      raise SignatureVerificationError("No signature found for key '{}'"
-          .format(verification_keyid))
+      raise SignatureVerificationError(
+          f"No signature found for key '{verification_keyid}'")
 
     if securesystemslib.formats.GPG_SIGNATURE_SCHEMA.matches(signature):
       valid = securesystemslib.gpg.functions.verify_signature(signature,
@@ -255,15 +255,15 @@ class Metablock(ValidationMixin):
       valid = False
 
     if not valid:
-      raise SignatureVerificationError("Invalid signature for keyid '{}'"
-          .format(verification_keyid))
+      raise SignatureVerificationError(
+          f"Invalid signature for keyid '{verification_keyid}'")
 
 
   def _validate_signed(self):
     """Private method to check if the 'signed' attribute contains a valid
     Layout or Link object. """
 
-    if not (isinstance(self.signed, Layout) or isinstance(self.signed, Link)):
+    if not isinstance(self.signed, (Layout, Link)):
       raise securesystemslib.exceptions.FormatError("The Metblock's 'signed'"
         " property has has to be of type 'Link' or 'Layout'.")
 

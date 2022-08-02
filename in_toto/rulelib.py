@@ -77,10 +77,7 @@ def unpack_rule(rule):
   # Create all lower rule copy to case insensitively parse out tokens whose
   # position we don't know yet
   # We keep the original rule to retain the non-token elements' case
-  rule_lower = []
-  for rule_elem in rule:
-    rule_lower.append(rule_elem.lower())
-
+  rule_lower = [rule_elem.lower() for rule_elem in rule]
   rule_len = len(rule)
 
   if rule_len < 2 or rule_lower[0] not in ALL_RULES:
@@ -96,24 +93,15 @@ def unpack_rule(rule):
   if rule_type in GENERIC_RULES:
     # pylint: disable=no-else-raise
     if rule_len != 2:
-      raise securesystemslib.exceptions.FormatError("Wrong rule format,"
-        " generic rules must have one of the formats:\n\t"
-        "CREATE <pattern>\n\t"
-        "MODIFY <pattern>\n\t"
-        "DELETE <pattern>\n\t"
-        "ALLOW <pattern>\n\t"
-        "DISALLOW <pattern>\n"
-        "REQUIRE <file>\n"
-        "Got:\n\t{}".format(rule))
+      raise securesystemslib.exceptions.FormatError(
+          f"Wrong rule format, generic rules must have one of the formats:\n\tCREATE <pattern>\n\tMODIFY <pattern>\n\tDELETE <pattern>\n\tALLOW <pattern>\n\tDISALLOW <pattern>\nREQUIRE <file>\nGot:\n\t{rule}"
+      )
     else:
       return {
         "rule_type": rule_type,
         "pattern": pattern,
       }
 
-  # Type is "MATCH"
-  # NOTE: Can't reach `else` branch, if the rule is neither in GENERIC_RULES
-  # nor in COMPLEX_RULES an exception is raised earlier.
   elif rule_type in COMPLEX_RULES: # pragma: no branch
     # ... IN <source-path-prefix> WITH (MATERIALS|PRODUCTS)
     # IN <destination-path-prefix> FROM <step>
@@ -125,7 +113,6 @@ def unpack_rule(rule):
       dest_prefix = rule[7]
       dest_name = rule[9]
 
-    # ... IN <source-path-prefix> WITH (MATERIALS|PRODUCTS) FROM <step>
     elif (rule_len == 8 and rule_lower[2] == "in" and
         rule_lower[4] == "with" and rule_lower[6] == "from"):
       source_prefix = rule[3]
@@ -133,7 +120,6 @@ def unpack_rule(rule):
       dest_prefix = ""
       dest_name = rule[7]
 
-    # ... WITH (MATERIALS|PRODUCTS) IN <destination-path-prefix> FROM <step>
     elif (rule_len == 8 and rule_lower[2] == "with" and
         rule_lower[4] == "in" and rule_lower[6] == "from"):
       source_prefix = ""
@@ -141,7 +127,6 @@ def unpack_rule(rule):
       dest_prefix = rule[5]
       dest_name = rule[7]
 
-    # ... WITH (MATERIALS|PRODUCTS) FROM <step>
     elif (rule_len == 6 and rule_lower[2] == "with" and
         rule_lower[4] == "from"):
       source_prefix = ""
@@ -150,17 +135,14 @@ def unpack_rule(rule):
       dest_name = rule[5]
 
     else:
-      raise securesystemslib.exceptions.FormatError("Wrong rule format,"
-          " match rules must have the format:\n\t"
-          " MATCH <pattern> [IN <source-path-prefix>] WITH"
-          " (MATERIALS|PRODUCTS) [IN <destination-path-prefix>] FROM <step>.\n"
-          "Got: \n\t{}".format(rule))
+      raise securesystemslib.exceptions.FormatError(
+          f"Wrong rule format, match rules must have the format:\n\t MATCH <pattern> [IN <source-path-prefix>] WITH (MATERIALS|PRODUCTS) [IN <destination-path-prefix>] FROM <step>.\nGot: \n\t{rule}"
+      )
 
     if dest_type not in {"materials", "products"}:
-      raise securesystemslib.exceptions.FormatError("Wrong rule format,"
-          " match rules must have either MATERIALS or PRODUCTS (case"
-          " insensitive) as destination.\n"
-          "Got: \n\t{}".format(rule))
+      raise securesystemslib.exceptions.FormatError(
+          f"Wrong rule format, match rules must have either MATERIALS or PRODUCTS (case insensitive) as destination.\nGot: \n\t{rule}"
+      )
 
     return {
       "rule_type": rule_type,
@@ -234,19 +216,17 @@ def pack_rule(rule_type, pattern, source_prefix=None, dest_type=None,
         .format(rule_type, ", ".join(ALL_RULES)))
 
   if rule_type.upper() == "MATCH":
-    if (not securesystemslib.formats.ANY_STRING_SCHEMA.matches(dest_type) or
-        not (dest_type.lower() == "materials" or
-        dest_type.lower() == "products")):
-      raise securesystemslib.exceptions.FormatError("'{}' is not a valid"
-          " 'dest_type'. Rules of type 'MATCH' require a destination type of"
-          " either 'MATERIALS' or 'PRODUCTS' (case insensitive)."
-          .format(dest_type))
+    if not securesystemslib.formats.ANY_STRING_SCHEMA.matches(
+        dest_type) or dest_type.lower() not in ["materials", "products"]:
+      raise securesystemslib.exceptions.FormatError(
+          f"'{dest_type}' is not a valid 'dest_type'. Rules of type 'MATCH' require a destination type of either 'MATERIALS' or 'PRODUCTS' (case insensitive)."
+      )
 
     if not (securesystemslib.formats.ANY_STRING_SCHEMA.matches(dest_name) and
         dest_name):
-      raise securesystemslib.exceptions.FormatError("'{}' is not a valid"
-          " 'dest_name'. Rules of type 'MATCH' require a step name as a"
-          " destination name.".format(dest_name))
+      raise securesystemslib.exceptions.FormatError(
+          f"'{dest_name}' is not a valid 'dest_name'. Rules of type 'MATCH' require a step name as a destination name."
+      )
 
     # Construct rule
     rule = ["MATCH", pattern]
